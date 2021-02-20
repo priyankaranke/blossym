@@ -50,7 +50,7 @@ class NavHeader extends Component {
       <Navbar bg="dark" variant="dark">
         <Container>
           <LinkContainer to="/">
-            <Navbar.Brand>Blossym</Navbar.Brand>
+            <Navbar.Brand>Blossym </Navbar.Brand>
           </LinkContainer>
           <Nav className="mr-auto">
             <LinkContainer to="/fan">
