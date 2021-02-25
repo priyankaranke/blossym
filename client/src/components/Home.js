@@ -57,7 +57,7 @@ class Home extends Component {
           <div className="mt-4 d-flex justify-content-center">
             <div className="d-flex flex-column align-items-center">
               <h6>
-                We're currently testing on ETH Kovan testnet. Get test ETH{" "}
+                We're currently on the ETH Kovan testnet. Get test ETH{" "}
                 <a href="https://faucet.kovan.network/"> here</a>.
               </h6>
               <a href="https://chris-hailey8.gitbook.io/blossym/">
