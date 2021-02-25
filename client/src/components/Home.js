@@ -43,6 +43,7 @@ class Home extends Component {
                 </Button>
               </Link>
             </div>
+
             <div className="d-flex flex-column align-items-center">
               <h2 class="h5">Creators</h2>
               <Link to="/creator">
@@ -50,6 +51,20 @@ class Home extends Component {
                   Open dashboard
                 </Button>
               </Link>
+            </div>
+          </div>
+
+          <div className="mt-4 d-flex justify-content-center">
+            <div className="d-flex flex-column align-items-center">
+              <h6>
+                We're currently on the ETH Kovan testnet. Get test ETH{" "}
+                <a href="https://faucet.kovan.network/"> here</a>.
+              </h6>
+              <a href="https://chris-hailey8.gitbook.io/blossym/">
+                <Button variant="primary" size="lg">
+                  Learn more
+                </Button>
+              </a>
             </div>
           </div>
         </Jumbotron>
