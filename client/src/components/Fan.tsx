@@ -1,13 +1,31 @@
-import React, { Component } from "react";
+import React from "react";
 import { Button, Card, Form, InputGroup } from "react-bootstrap";
-import Web3 from "web3";
 import FanProxyContract from "../contracts/FanProxy.json";
 import TransactionModal, { TransactionModalState } from "./TransactionModal";
 import { addresses } from "../addresses";
+import { ethers } from "ethers";
 import "./Fan.css";
 
-class Fan extends Component {
-  constructor(props) {
+
+interface IProps {
+  connectedWallet?: any; 
+  provider?: any; 
+  onWalletConnectClick?: any; 
+  match?: any; 
+  
+}
+
+interface IState {
+  creatorAddress?: string; 
+  amountValue?: number;
+  sentTransactionHash?: string;
+  transactionModalState?: number; 
+  aaveRate?: string; 
+  contract?: any; 
+}
+
+class Fan extends React.Component<IProps, IState>  {
+  constructor(props: any) {
     super(props);
     this.state = {
       creatorAddress: "",
@@ -29,7 +47,7 @@ class Fan extends Component {
     }
   };
 
-  componentDidUpdate = async (prevProps) => {
+  componentDidUpdate = async (prevProps: any) => {
     if (this.props.provider !== prevProps.provider) {
       await this.initContract();
     }
@@ -40,16 +58,18 @@ class Fan extends Component {
     if (!provider || this.state.contract) {
       return;
     }
-
+    /*
     try {
-      const web3 = new Web3(provider);
-      const networkId = await web3.eth.net.getId();
-      const fanProxyAddress = addresses[networkId]
-        ? addresses[networkId].fanProxy
-        : FanProxyContract.networks[networkId].address;
-      const instance = new web3.eth.Contract(
+      const web3 = new ethers.providers.Web3Provider(provider) ;
+      const networkId = await web3.getNetwork();
+      const networkChainId:number = networkId.chainId;
+      const fanProxyAddress = addresses[networkChainId]
+        ? addresses[networkChainId].fanProxy
+        : FanProxyContract.networks[networkChainId].address;
+      const instance = new ethers.Contract(
+        fanProxyAddress,
         FanProxyContract.abi,
-        fanProxyAddress
+        provider
       );
 
       this.setState({ contract: instance });
@@ -57,9 +77,10 @@ class Fan extends Component {
       // Catch any errors for any of the above operations.
       console.error(error);
     }
+    */
   }
 
-  handleInputChange(event) {
+  handleInputChange(event: any) {
     const target = event.target;
     switch (target.name) {
       case "creatorAddress":
@@ -80,17 +101,17 @@ class Fan extends Component {
   }
 
   getEthAmount() {
-    return Web3.utils.toWei(this.state.amountValue.toString(), "ether");
+    return ethers.utils.parseEther(this.state.amountValue!.toString());
   }
 
-  sendDonation(event) {
+  sendDonation(event: any) {
     event.preventDefault();
-
+    /*
     try {
       this.state.contract.methods
         .swapAndDonateETH(this.state.creatorAddress)
         .send({ from: this.props.connectedWallet, value: this.getEthAmount() })
-        .once("transactionHash", (hash) => {
+        .once("transactionHash", (hash: any) => {
           this.setState({
             sentTransactionHash: hash,
             transactionModalState: TransactionModalState.AWAITING_CONFIRMATION,
@@ -109,14 +130,15 @@ class Fan extends Component {
     } catch (error) {
       console.log(`Error: ${error}`);
     }
+    */
   }
 
-  isValidAddress(address) {
+  isValidAddress(address: string) {
     // TODO: Support ENS addresses.
-    return Web3.utils.isAddress(address);
+    return ethers.utils.isAddress(address);
   }
 
-  isValidAmount(amount) {
+  isValidAmount(amount: number) {
     return Number.isFinite(amount) && amount > 0.0;
   }
 
@@ -138,8 +160,8 @@ class Fan extends Component {
       );
     } else {
       const disabled =
-        !this.isValidAddress(this.state.creatorAddress) ||
-        !this.isValidAmount(this.state.amountValue);
+        !this.isValidAddress(this.state.creatorAddress!) ||
+        !this.isValidAmount(this.state.amountValue!);
       button = (
         <Button
           variant="success"

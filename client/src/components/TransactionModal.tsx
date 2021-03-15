@@ -10,12 +10,20 @@ export const TransactionModalState = Object.freeze({
 
 const spinnerStyle = { height: "128px", width: "128px" };
 
-class TransactionModal extends Component {
+interface IProps {
+  modalState?: any; 
+  transactionHash?: any; 
+  confirmedText?: string; 
+  onHide?: any;
+}
+
+
+class TransactionModal extends Component<IProps>  {
   show = () => {
     return this.props.modalState !== TransactionModalState.HIDDEN;
   };
 
-  getEtherscanUrl = (transactionHash) => {
+  getEtherscanUrl = (transactionHash: any) => {
     // TODO: Support non-kovan network chains.
     return `https://kovan.etherscan.io/tx/${transactionHash}`;
   };

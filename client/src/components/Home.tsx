@@ -1,9 +1,9 @@
-import React, { Component } from "react";
+import React from "react";
 import { Button, Card, CardDeck, Container, Jumbotron } from "react-bootstrap";
 import { Link } from "react-router-dom";
 
-class Home extends Component {
-  getCreatorCard(name, description, address, websiteUrl) {
+class Home extends React.Component {
+  getCreatorCard(name: string, description: string, address: string, websiteUrl: string) {
     const fanLink = "/fan/" + address;
     return (
       <Card>
@@ -36,7 +36,7 @@ class Home extends Component {
           <p className="lead">The crypto way to fund the creative economy.</p>
           <div className="mt-4 d-flex justify-content-center">
             <div className="d-flex flex-column align-items-center mr-4">
-              <h2 class="h5">Fans</h2>
+              <h2 className="h5">Fans</h2>
               <Link to="/fan">
                 <Button variant="info" size="lg">
                   Support creators
@@ -45,7 +45,7 @@ class Home extends Component {
             </div>
 
             <div className="d-flex flex-column align-items-center">
-              <h2 class="h5">Creators</h2>
+              <h2 className="h5">Creators</h2>
               <Link to="/creator">
                 <Button variant="success" size="lg">
                   Open dashboard

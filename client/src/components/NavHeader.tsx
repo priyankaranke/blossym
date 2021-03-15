@@ -9,8 +9,24 @@ import {
 } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 
-class NavHeader extends Component {
-  constructor(props) {
+interface IProps {
+  connectedWallet?: any; 
+  provider?: any; 
+  onWalletConnectClick?: any; 
+  onDisconnectWallet?: any; 
+}
+
+interface IState {
+  creatorAddress?: string; 
+  amountValue?: number;
+  sentTransactionHash?: string;
+  transactionModalState?: number; 
+  aaveRate?: string; 
+  contract?: any; 
+}
+
+class NavHeader extends Component<IProps, IState> {
+  constructor(props: any) {
     super(props);
     this.state = {
       creatorAddress: "",

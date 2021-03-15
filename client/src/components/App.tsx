@@ -1,7 +1,7 @@
-import React, { Component } from "react";
+import React from "react";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
-import Web3 from "web3";
 import Web3Modal from "web3modal";
+import { ethers } from "ethers";
 import Fortmatic from "fortmatic";
 import NavHeader from "./NavHeader";
 import Home from "./Home";
@@ -9,7 +9,6 @@ import Creator from "./Creator";
 import Fan from "./Fan";
 
 const initialState = {
-  web3: null,
   provider: null,
   connectedWallet: "",
   ethTransactions: [],
@@ -24,10 +23,20 @@ const providerOptions = {
   },
 };
 
-class App extends Component {
+interface IProps {
+
+}
+
+interface IState {
+  provider?: any;
+  connectedWallet?: string;
+  ethTransactions?: Array<any>; 
+}
+
+class App extends React.Component<IProps, IState> {
   web3Modal;
 
-  constructor(props) {
+  constructor(props: any) {
     super(props);
     this.state = { ...initialState };
     this.web3Modal = new Web3Modal({
@@ -39,20 +48,15 @@ class App extends Component {
   }
 
   async openWalletConnectModal() {
-    let web3 = this.state.web3;
-    if (!web3) {
-      const provider = await this.web3Modal.connect();
-      web3 = new Web3(provider);
-      this.setState({
-        provider: provider,
-        web3: web3,
-      });
+    let provider = this.state.provider;
+    if (!provider) {
+      const providerConnect = await this.web3Modal.connect();
+      provider = new ethers.providers.Web3Provider(providerConnect); 
     }
 
     if (!this.state.connectedWallet) {
-      const accounts = await web3.eth.getAccounts();
       this.setState({
-        connectedWallet: accounts[0],
+        connectedWallet: "",
       });
       const fetchURL =
         "https://api.etherscan.io/api?module=account&action=txlist&address=" +
@@ -67,13 +71,11 @@ class App extends Component {
   }
 
   async disconnectWallet() {
-    const { web3 } = this.state;
-    if (web3 && web3.currentProvider && web3.currentProvider.close) {
-      await web3.currentProvider.close();
-    }
     await this.web3Modal.clearCachedProvider();
     this.setState({ ...initialState });
   }
+
+  
 
   render() {
     return (

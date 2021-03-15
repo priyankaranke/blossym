@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import {
   Button,
   ToggleButton,
@@ -12,13 +12,32 @@ import {
 import { ImCopy, ImTwitter, ImTelegram } from "react-icons/im";
 import { TwitterShareButton, TelegramShareButton } from "react-share";
 import { CopyToClipboard } from "react-copy-to-clipboard";
-import Web3 from "web3";
 import TransactionModal, { TransactionModalState } from "./TransactionModal";
 import ILendingPoolContract from "../contracts/ILendingPool.json";
 import { addresses } from "../addresses";
+import { ethers } from "ethers";
 
-class Creator extends Component {
-  constructor(props) {
+interface IProps {
+  connectedWallet?: any; 
+  provider?: any; 
+  ethTransactions?: Array<any>; 
+  onWalletConnectClick?: any; 
+}
+
+interface IState {
+  ETHinUSD?: string; 
+  usdcAddress?: string;
+  aUSDCBalance?: string;
+  lendingPoolContract?: any; 
+  sentTransactionHash?: string;
+  transactionModalState?: number; 
+  aaveRate?: string; 
+  estimatedFuture?: string; 
+}
+
+
+class Creator extends React.Component<IProps, IState> {
+  constructor(props: any) {
     super(props);
     this.state = {
       ETHinUSD: "0",
@@ -35,7 +54,7 @@ class Creator extends Component {
     this.resetTransactionModal = this.resetTransactionModal.bind(this);
   }
 
-  getLink(hash) {
+  getLink(hash: string) {
     return "https://kovan.etherscan.io/tx/" + hash;
   }
 
@@ -52,7 +71,7 @@ class Creator extends Component {
       lendingPoolContract.methods
         .withdraw(usdcAddress, -1, connectedWallet)
         .send({ from: connectedWallet })
-        .once("transactionHash", (hash) => {
+        .once("transactionHash", (hash: string) => {
           this.setState({
             sentTransactionHash: hash,
             transactionModalState: TransactionModalState.AWAITING_CONFIRMATION,
@@ -82,16 +101,16 @@ class Creator extends Component {
     });
   }
 
-  calculateInterest(time) {
-    const principle = parseFloat(this.state.aUSDCBalance);
-    const rate = 0.01 * parseFloat(this.state.aaveRate);
-    const timeYears = parseInt(time) / 12;
+  calculateInterest(time: number) {
+    const principle = parseFloat(this.state.aUSDCBalance!);
+    const rate = 0.01 * parseFloat(this.state.aaveRate!);
+    const timeYears = time / 12;
 
     const estimatedBalance = principle * (1 + rate * timeYears);
     return estimatedBalance;
   }
 
-  changeEstValue(numMonths) {
+  changeEstValue(numMonths: number) {
     const estimatedBalance = this.calculateInterest(numMonths);
     this.setState({ estimatedFuture: estimatedBalance.toFixed(2) });
   }
@@ -135,7 +154,7 @@ class Creator extends Component {
     this.setState({ ETHinUSD: priceInUSD });
   }
 
-  componentDidUpdate = async (prevProps) => {
+  componentDidUpdate = async (prevProps: any) => {
     if (
       this.props.provider !== prevProps.provider ||
       !this.state.lendingPoolContract
@@ -151,17 +170,20 @@ class Creator extends Component {
     }
 
     try {
-      const web3 = new Web3(provider);
-      const networkId = await web3.eth.net.getId();
-      const lendingPoolAddress = addresses[networkId].lendingPool;
-      const instance = new web3.eth.Contract(
-        ILendingPoolContract.abi,
-        lendingPoolAddress
+      const web3 = new ethers.providers.Web3Provider(provider) ;
+      const networkId = await web3.getNetwork();
+      const networkChainId = networkId.chainId;
+      const lendingPoolAddress = "0xE0fBa4Fc209b4948668006B2bE61711b7f465bAe";
+      const lendingPoolABI = require('../contracts/ILendingPool.json');
+      const instance = new ethers.Contract(
+        lendingPoolAddress,
+        lendingPoolABI,
+        provider
       );
 
       this.setState({
         lendingPoolContract: instance,
-        usdcAddress: addresses[networkId].tokens.USDC,
+        usdcAddress: "0xe22da380ee6B445bb8273C81944ADEB6E8450422",
       });
     } catch (error) {
       // Catch any errors for any of the above operations.
@@ -169,14 +191,14 @@ class Creator extends Component {
     }
   }
 
-  getValue(weiVal) {
-    const val = Web3.utils.fromWei(weiVal, "ether");
-    var USD = parseFloat(val) * parseFloat(this.state.ETHinUSD);
-    USD = USD.toFixed(2);
-    return val + " ETH ($" + USD + " USD)";
+  getValue(weiVal: string) {
+    const val = ethers.utils.formatEther(weiVal);
+    var USD = parseFloat(val) * parseFloat(this.state.ETHinUSD!);
+    const stringUSD = USD.toFixed(2);
+    return val + " ETH ($" + stringUSD + " USD)";
   }
 
-  getRealTime(timestamp) {
+  getRealTime(timestamp: string) {
     const utcSeconds = parseInt(timestamp);
     var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
     d.setUTCSeconds(utcSeconds);
@@ -301,7 +323,7 @@ class Creator extends Component {
                 </tr>
               </thead>
               <tbody>
-                {this.props.ethTransactions.map((tx) => (
+                {this.props.ethTransactions!.map((tx) => (
                   <tr>
                     <td>
                       <a
@@ -319,6 +341,7 @@ class Creator extends Component {
               </tbody>
             </Table>
           </div>
+          
           <TransactionModal
             confirmedText="You've successfully withdrawn your aUSDC. It now will show up as USDC in your wallet."
             modalState={this.state.transactionModalState}
